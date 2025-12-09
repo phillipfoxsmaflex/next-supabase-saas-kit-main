@@ -1,0 +1,43 @@
+
+
+# Ignore node_modules since we install them in the Dockerfile
+node_modules
+
+# Ignore git files
+.git
+.gitignore
+
+# Ignore environment files (we'll handle them differently)
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Ignore build output
+.next
+.out
+
+# Ignore IDE files
+.vscode
+.idea
+
+# Ignore logs and temporary files
+*.log
+*.tmp
+*.swp
+
+# Ignore Docker files (to avoid conflicts)
+docker-compose.override.yml
+docker-compose.dev.yml
+
+# Ignore test and coverage files
+coverage
+cypress
+cypress.config.ts
+
+# Ignore documentation and config files that aren't needed in production
+README.md
+LICENSE
+*.md
+

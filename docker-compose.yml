@@ -1,0 +1,213 @@
+
+version: '3.8'
+
+services:
+  # Next.js Application
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_SITE_URL=http://localhost:3000
+      - NEXT_PUBLIC_SUPABASE_URL=http://supabase:54321
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+      - SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
+      - NEXT_PUBLIC_REQUIRE_EMAIL_CONFIRMATION=true
+      - EMAIL_SENDER=test@makerkit.dev
+      - EMAIL_PORT=54325
+      - EMAIL_HOST=supabase
+      - EMAIL_TLS=false
+      - EMAIL_USER=user
+      - EMAIL_PASSWORD=password
+      - NEXT_PUBLIC_ENABLE_ACCOUNT_DELETION=true
+      - NEXT_PUBLIC_ENABLE_ORGANIZATION_DELETION=true
+    depends_on:
+      - supabase
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # Supabase Database
+  supabase-db:
+    image: supabase/postgres:15.1.0.73
+    ports:
+      - "54322:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - supabase-db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Supabase Studio (Admin UI)
+  supabase-studio:
+    image: supabase/studio:2024-04-10-65b9a96
+    ports:
+      - "54323:3000"
+    environment:
+      STUDIO_PG_META_URL: http://supabase:8080
+      SUPABASE_PUBLIC_URL: http://localhost:3000
+      SUPABASE_URL: http://supabase:54321
+      SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+    depends_on:
+      supabase:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # Supabase Auth
+  supabase-auth:
+    image: supabase/gotrue:v2.135.0
+    ports:
+      - "54321:9999"
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      GOTRUE_SITE_URL: http://localhost:3000
+      GOTRUE_DATABASE_URL: postgresql://postgres:postgres@supabase-db:5432/postgres
+      GOTRUE_JWT_SECRET: super-secret-jwt-token-with-at-least-32-characters-long
+      GOTRUE_JWT_EXP: 3600
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
+      GOTRUE_SMTP_HOST: localhost
+      GOTRUE_SMTP_PORT: 54325
+      GOTRUE_SMTP_USER: user
+      GOTRUE_SMTP_PASS: password
+      GOTRUE_SMTP_SENDER_NAME: test@makerkit.dev
+      GOTRUE_MAILER_AUTOCONFIRM: "false"
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # Supabase REST API
+  supabase-rest:
+    image: postgrest/postgrest:v12.0.1
+    ports:
+      - "54320:3000"
+    environment:
+      PGRST_DB_URI: postgres://postgres:postgres@supabase-db:5432/postgres
+      PGRST_DB_SCHEMA: public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: super-secret-jwt-token-with-at-least-32-characters-long
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # Supabase Realtime
+  supabase-realtime:
+    image: supabase/realtime:v2.26.0
+    ports:
+      - "4000:4000"
+    environment:
+      DB_HOST: supabase-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: postgres
+      DB_SSL: "false"
+      PORT: 4000
+      JWT_SECRET: super-secret-jwt-token-with-at-least-32-characters-long
+      SECRET_KEY_BASE: super-secret-key-base-with-at-least-32-characters-long
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # Supabase Storage
+  supabase-storage:
+    image: supabase/storage-api:v0.46.0
+    ports:
+      - "5000:5000"
+    environment:
+      ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+      SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
+      POSTGREST_URL: http://supabase-rest:3000
+      PGRST_JWT_SECRET: super-secret-jwt-token-with-at-least-32-characters-long
+      DATABASE_URL: postgresql://postgres:postgres@supabase-db:5432/postgres
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: stub
+    volumes:
+      - supabase-storage-data:/var/lib/storage
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+      supabase-rest:
+        condition: service_started
+    networks:
+      - app-network
+
+  # Supabase Meta (for API management)
+  supabase-meta:
+    image: supabase/postgres-meta:v0.71.0
+    ports:
+      - "8080:8080"
+    environment:
+      PG_META_DB_HOST: supabase-db
+      PG_META_DB_PORT: 5432
+      PG_META_DB_USER: postgres
+      PG_META_DB_PASSWORD: postgres
+      PG_META_DB_NAME: postgres
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # Supabase Kong (API Gateway)
+  supabase-kong:
+    image: kong:3.4.2
+    ports:
+      - "54321:8000"
+      - "54324:8001"
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
+      KONG_DNS_ORDER: LAST,A,CNAME
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl
+    volumes:
+      - ./supabase/kong.yml:/etc/kong/kong.yml
+    depends_on:
+      supabase-rest:
+        condition: service_started
+      supabase-realtime:
+        condition: service_started
+      supabase-auth:
+        condition: service_started
+      supabase-storage:
+        condition: service_started
+    networks:
+      - app-network
+
+  # Email Service (Inbucket for testing)
+  supabase-inbucket:
+    image: inbucket/inbucket:v3.0.3
+    ports:
+      - "54325:9000"
+      - "54326:10080"
+    networks:
+      - app-network
+
+volumes:
+  supabase-db-data:
+  supabase-storage-data:
+
+networks:
+  app-network:
+    driver: bridge
+
