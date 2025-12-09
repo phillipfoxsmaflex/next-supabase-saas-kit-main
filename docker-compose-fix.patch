@@ -1,0 +1,31 @@
+diff --git a/docker-compose.yml b/docker-compose.yml
+index a57305a..a2ae071 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -1,6 +1,4 @@
+ 
+-version: '3.8'
+-
+ services:
+   # Next.js Application
+   nextjs:
+@@ -55,13 +53,15 @@ services:
+     ports:
+       - "54323:3000"
+     environment:
+-      STUDIO_PG_META_URL: http://supabase:8080
++      STUDIO_PG_META_URL: http://supabase-meta:8080
+       SUPABASE_PUBLIC_URL: http://localhost:3000
+-      SUPABASE_URL: http://supabase:54321
++      SUPABASE_URL: http://supabase-kong:8000
+       SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+     depends_on:
+-      supabase:
+-        condition: service_healthy
++      supabase-meta:
++        condition: service_started
++      supabase-kong:
++        condition: service_started
+     networks:
+       - app-network
+ 

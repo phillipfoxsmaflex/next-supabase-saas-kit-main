@@ -1,0 +1,28 @@
+diff --git a/docker-compose.override.yml b/docker-compose.override.yml
+index fb143b7..c6afbc9 100644
+--- a/docker-compose.override.yml
++++ b/docker-compose.override.yml
+@@ -1,7 +1,5 @@
+ 
+ 
+-version: '3.8'
+-
+ services:
+   nextjs:
+     build:
+@@ -12,13 +10,13 @@ services:
+     environment:
+       - NODE_ENV=development
+       - NEXT_PUBLIC_SITE_URL=http://localhost:3000
+-      - NEXT_PUBLIC_SUPABASE_URL=http://supabase:54321
++      - NEXT_PUBLIC_SUPABASE_URL=http://supabase-kong:8000
+       - NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+       - SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
+       - NEXT_PUBLIC_REQUIRE_EMAIL_CONFIRMATION=true
+       - EMAIL_SENDER=test@makerkit.dev
+       - EMAIL_PORT=54325
+-      - EMAIL_HOST=supabase
++      - EMAIL_HOST=supabase-inbucket
+       - EMAIL_TLS=false
+       - EMAIL_USER=user
+       - EMAIL_PASSWORD=password

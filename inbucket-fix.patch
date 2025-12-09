@@ -1,0 +1,13 @@
+diff --git a/docker-compose.yml b/docker-compose.yml
+index a2ae071..1bce9ba 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -197,7 +197,7 @@ services:
+ 
+   # Email Service (Inbucket for testing)
+   supabase-inbucket:
+-    image: inbucket/inbucket:v3.0.3
++    image: inbucket/inbucket:latest
+     ports:
+       - "54325:9000"
+       - "54326:10080"
