@@ -1,0 +1,13 @@
+diff --git a/Dockerfile b/Dockerfile
+index ab1bd57..a9e4aff 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -9,7 +9,7 @@ WORKDIR /app
+ COPY package.json package-lock.json ./
+ 
+ # Install dependencies
+-RUN npm install
++RUN npm install --legacy-peer-deps
+ 
+ # Copy the rest of the application
+ COPY . .

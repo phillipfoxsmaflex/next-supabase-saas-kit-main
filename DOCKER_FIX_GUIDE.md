@@ -108,6 +108,22 @@ supabase-studio:
 
 This change ensures that the latest stable version of Supabase Studio is used, which is always available and maintained.
 
+## Next.js Dependency Conflict Fix
+
+A dependency conflict was discovered during the Docker build process. The `next-contentlayer@0.3.4` package requires `next@^12 || ^13` as a peer dependency, but the project uses `next@14.2.5`. This causes npm to fail with an ERESOLVE error.
+
+**Original (incorrect):**
+```dockerfile
+RUN npm install
+```
+
+**Fixed:**
+```dockerfile
+RUN npm install --legacy-peer-deps
+```
+
+This change tells npm to ignore peer dependency conflicts and proceed with the installation, which is a common practice for Docker builds where you want to ensure the build completes successfully.
+
 ## Verification
 
 After making these changes, you can verify the configuration is correct by running:
