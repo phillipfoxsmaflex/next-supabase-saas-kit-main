@@ -43,6 +43,15 @@ This document provides a comprehensive overview of all the fixes that have been 
 **Files Modified**:
 - `Dockerfile`
 
+### 5. Port Conflict Issue (RESOLVED)
+
+**Problem**: Port 3000 was already in use on the host system.
+
+**Solution**: Changed the Next.js application port mapping from `3000:3000` to `3001:3000` and updated the `NEXT_PUBLIC_SITE_URL` environment variable accordingly.
+
+**Files Modified**:
+- `docker-compose.yml`
+
 ## Patch Files Available
 
 All fixes have been provided as patch files for easy application:
@@ -51,6 +60,7 @@ All fixes have been provided as patch files for easy application:
 2. `docker-compose-override-fix.patch` - Fixes environment variables in override file
 3. `studio-fix.patch` - Fixes Supabase Studio image version
 4. `dockerfile-npm-fix.patch` - Fixes Next.js dependency conflict
+5. `port-change.patch` - Changes Next.js port from 3000 to 3001
 
 ## How to Apply the Fixes
 
@@ -62,6 +72,7 @@ git apply docker-compose-fix.patch
 git apply docker-compose-override-fix.patch
 git apply studio-fix.patch
 git apply dockerfile-npm-fix.patch
+git apply port-change.patch
 ```
 
 ### Option 2: Manual Fixes
@@ -70,6 +81,8 @@ git apply dockerfile-npm-fix.patch
    - Change `supabase-studio` dependencies from `supabase` to `supabase-meta` and `supabase-kong`
    - Change Inbucket image from `v3.0.3` to `latest`
    - Change Supabase Studio image from `2024-04-10-65b9a96` to `latest`
+   - Change Next.js port mapping from `3000:3000` to `3001:3000`
+   - Update `NEXT_PUBLIC_SITE_URL` from `http://localhost:3000` to `http://localhost:3001`
 
 2. **Fix Dockerfile**:
    - Change `RUN npm install` to `RUN npm install --legacy-peer-deps`
@@ -94,7 +107,7 @@ docker compose up -d --build
    ```
 
 2. **Access the services**:
-   - Next.js application: `http://localhost:3000`
+   - Next.js application: `http://localhost:3001`
    - Supabase Studio: `http://localhost:54323`
    - Supabase database: `postgresql://postgres:postgres@localhost:54322/postgres`
 
@@ -130,5 +143,6 @@ If you encounter any issues:
 - The Next.js application is built in a multi-stage Docker build for optimal performance
 - Environment variables are properly configured for both development and production
 - The `.dockerignore` file ensures only necessary files are included in the build context
+- The Next.js application now runs on port 3001 to avoid conflicts with other services
 
 The deployment should now work without any dependency or configuration issues.
