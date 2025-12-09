@@ -90,6 +90,24 @@ supabase-inbucket:
 
 This change ensures that the latest stable version of Inbucket is used, which is always available and maintained.
 
+## Supabase Studio Image Fix
+
+Another issue was discovered: the Supabase Studio Docker image version `2024-04-10-65b9a96` does not exist on Docker Hub.
+
+**Original (incorrect):**
+```yaml
+supabase-studio:
+  image: supabase/studio:2024-04-10-65b9a96
+```
+
+**Fixed:**
+```yaml
+supabase-studio:
+  image: supabase/studio:latest
+```
+
+This change ensures that the latest stable version of Supabase Studio is used, which is always available and maintained.
+
 ## Verification
 
 After making these changes, you can verify the configuration is correct by running:
