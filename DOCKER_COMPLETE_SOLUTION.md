@@ -140,7 +140,7 @@ docker compose down
 - **Solution**: Wait for `supabase-db` to fully initialize before other services start
 
 **Issue: Port conflicts**
-- **Solution**: Ensure no other services are using ports 3000, 54320-54326, 4000, 5000
+- **Solution**: Ensure no other services are using ports 3000, 54320-54326, 4000, 5001
 
 **Issue: Service startup order**
 - **Solution**: Use `depends_on` with appropriate conditions to ensure proper startup sequence

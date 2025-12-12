@@ -125,7 +125,7 @@ For production deployment:
 | supabase-auth | 54321 | Authentication service |
 | supabase-rest | 54320 | REST API service |
 | supabase-realtime | 4000 | Realtime service |
-| supabase-storage | 5000 | Storage service |
+| supabase-storage | 5001 | Storage service |
 | supabase-inbucket | 54326 | Email testing service |
 
 ## Cleanup

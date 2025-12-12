@@ -160,5 +160,5 @@ The services are exposed on the following ports:
 - Supabase Auth: `localhost:54321`
 - Supabase Rest API: `localhost:54320`
 - Supabase Realtime: `localhost:4000`
-- Supabase Storage: `localhost:5000`
+- Supabase Storage: `localhost:5001`
 - Inbucket (email testing): `http://localhost:54325` (SMTP), `http://localhost:54326` (web UI)
